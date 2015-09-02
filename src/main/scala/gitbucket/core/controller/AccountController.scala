@@ -91,7 +91,7 @@ trait AccountControllerBase extends AccountManagementControllerBase {
 
   val newRepositoryForm = mapping(
     "owner"        -> trim(label("Owner"          , text(required, maxlength(40), identifier, existsAccount))),
-    "name"         -> trim(label("Repository name", text(required, maxlength(40), identifier, uniqueRepository))),
+    "name"         -> trim(label("Repository name", text(required, maxlength(40), repository, uniqueRepository))),
     "description"  -> trim(label("Description"    , optional(text()))),
     "isPrivate"    -> trim(label("Repository Type", boolean())),
     "createReadme" -> trim(label("Create README"  , boolean()))
@@ -466,6 +466,14 @@ trait AccountControllerBase extends AccountManagementControllerBase {
           parentRepositoryName = Some(repository.name),
           parentUserName       = Some(repository.owner)
         )
+
+        // Add collaborators for group repository
+        val ownerAccount = getAccountByUserName(accountName).get
+        if(ownerAccount.isGroupAccount){
+          getGroupMembers(accountName).foreach { member =>
+            addCollaborator(accountName, repository.name, member.userName)
+          }
+        }
 
         // Insert default labels
         insertDefaultLabels(accountName, repository.name)

@@ -5,7 +5,7 @@ import java.util.{Date, Locale, TimeZone}
 
 import gitbucket.core.controller.Context
 import gitbucket.core.model.CommitState
-import gitbucket.core.plugin.{RenderRequest, PluginRegistry, Renderer}
+import gitbucket.core.plugin.{RenderRequest, PluginRegistry}
 import gitbucket.core.service.{RepositoryService, RequestCache}
 import gitbucket.core.util.{FileUtil, JGitUtil, StringUtil}
 
@@ -91,16 +91,16 @@ object helpers extends AvatarImageProvider with LinkConverter with RequestCache 
                enableTaskList: Boolean = false,
                hasWritePermission: Boolean = false,
                pages: List[String] = Nil)(implicit context: Context): Html =
-    Html(Markdown.toHtml(value, repository, enableWikiLink, enableRefsLink, enableTaskList, hasWritePermission, pages))
+    Html(Markdown.toHtml(value, repository, enableWikiLink, enableRefsLink, enableTaskList, true, hasWritePermission, pages))
 
   def renderMarkup(filePath: List[String], fileContent: String, branch: String,
                    repository: RepositoryService.RepositoryInfo,
-                   enableWikiLink: Boolean, enableRefsLink: Boolean)(implicit context: Context): Html = {
+                   enableWikiLink: Boolean, enableRefsLink: Boolean, enableAnchor: Boolean)(implicit context: Context): Html = {
 
     val fileName  = filePath.reverse.head.toLowerCase
     val extension = FileUtil.getExtension(fileName)
     val renderer  = PluginRegistry().getRenderer(extension)
-    renderer.render(RenderRequest(filePath, fileContent, branch, repository, enableWikiLink, enableRefsLink, context))
+    renderer.render(RenderRequest(filePath, fileContent, branch, repository, enableWikiLink, enableRefsLink, enableAnchor, context))
   }
 
   def isRenderable(fileName: String): Boolean = {
@@ -154,6 +154,11 @@ object helpers extends AvatarImageProvider with LinkConverter with RequestCache 
       .replaceAll("\\[user:([^\\s]+?)\\]"                          , (m: Match) => user(m.group(1)).body)
       .replaceAll("\\[commit:([^\\s]+?)/([^\\s]+?)\\@([^\\s]+?)\\]", (m: Match) => s"""<a href="${context.path}/${m.group(1)}/${m.group(2)}/commit/${m.group(3)}">${m.group(1)}/${m.group(2)}@${m.group(3).substring(0, 7)}</a>""")
     )
+
+  /**
+   * Remove html tags from the given Html instance.
+   */
+  def removeHtml(html: Html): Html = Html(html.body.replaceAll("<.+?>", ""))
 
   /**
    * URL encode except '/'.

@@ -14,7 +14,7 @@
   @html.menu("code", repository){
     <table class="table table-bordered">
       <tr>
-        <th>
+        <th class="box-header">
           <div class="pull-right align-right">
             <a href="@url(repository)/tree/@commit.id" class="btn btn-small">Browse code</a>
           </div>
@@ -25,7 +25,7 @@
           <div class="small" style="font-weight: normal;">
             @if(branches.nonEmpty){
               <span class="muted">
-                <img src="@assets/common/images/branch.png"/>
+                  <i class="octicon octicon-git-branch"></i>
                 @branches.zipWithIndex.map { case (branch, i) =>
                   <a href="@url(repository)/tree/@encodeRefName(branch)" class="branch" id="branch-@i">@branch</a>
                 }
@@ -33,7 +33,7 @@
             }
             @if(tags.nonEmpty){
               <span class="muted">
-                <img src="@assets/common/images/tag.png"/>
+                  <i class="octicon octicon-tag"></i>
                 @tags.zipWithIndex.map { case (tag, i) =>
                   <a href="@url(repository)/tree/@tag" class="tag" id="tag-@i">@tag</a>
                 }
@@ -74,7 +74,7 @@
             </div>
             @if(commit.isDifferentFromAuthor) {
             <div class="committer">
-              <span class="icon-arrow-right"></span>
+              <span class="octicon octicon-arrow-right"></span>
               <span>@user(commit.committerName, commit.committerEmailAddress, "username strong")</span>
               <span class="muted"> committed @helper.html.datetimeago(commit.commitTime)</span>
             </div>
