@@ -295,7 +295,8 @@ trait RepositoryViewerControllerBase extends ControllerBase {
           // Download
           JGitUtil.getObjectLoaderFromId(git, objectId){ loader =>
             //RawData("application/octet-stream", bytes)
-            contentType = "application/octet-stream"
+            //contentType = "application/octet-stream"
+            contentType = FileUtil.getMimeType(path)
             response.setContentLength(loader.getSize.toInt)
             loader.copyTo(response.getOutputStream)
             ()
